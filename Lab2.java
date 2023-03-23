@@ -73,6 +73,7 @@ public class Lab2 extends JFrame implements ActionListener {
 	//Execute the program until END        
         while(end) {
             eachLine = line.get(lineNum);
+            doMethod(eachLine);																//Ask Eric which placement of doMethod is better
             lineNum++;
             //line.get(lineNum++);
             if(eachLine.equals("END")) {
@@ -80,7 +81,7 @@ public class Lab2 extends JFrame implements ActionListener {
             	System.out.println("Program ended");
             	continue;
             }
-            doMethod(eachLine);
+            doMethod(eachLine);																//Ask Eric which placement of doMethod is better
         }
 	}
 	
@@ -103,36 +104,68 @@ public class Lab2 extends JFrame implements ActionListener {
  		if (firstWord.equals("PRINT")) {
 			printVar();
 			System.out.println("Doing PRINT");
-			//eachLine = 
+			lineNum++;
 		} else if (firstWord.equals("GOTO")) {
 			GOTOn();
 			System.out.println("Doing GOTO");
+			lineNum++;
 		} else if (firstWord.equals("IF")) {
 			conditional();
 			System.out.println("Doing IF");
+			lineNum++;
 		} else {
 			varExpression();
 			System.out.println("Doing Var");
+			lineNum++;
 		} 
 	}
 	
 	void varExpression() {
-		
+		vars.put(eachWord.get(0), Double.valueOf(eachWord.get(2)));
+		vars.get(eachWord.get(0));
 	}
 	
 	void printVar() {
-	/*	vars.put(eachWord.get(2), 3.0);
-		double varVal = vars.get(eachWord.get(1));
-		result.setText("" + varVal); */
+	//Log the variable and value to the HashMap, make it a double, and setText in result box
+		vars.put(eachWord.get(0), Double.valueOf(eachWord.get(2)));
+		double varVal = vars.get(eachWord.get(2));
+		result.setText("" + varVal);
 			}
 	
-	void GOTOn() {
-		int GotoVar = Integer.parseInt(eachWord.get(1));
-		lineNum = GotoVar;
+	int GOTOn() {
+		//Gets value after "GOTO" and sets it equal to lineNum
+		int GotoLin = Integer.parseInt(eachWord.get(1));
+		lineNum = GotoLin;
+		return lineNum;																		//Do I even need to return this?
 	}
 	
 	void conditional() {
 		
+		String stmnt = eachWord.get(5);
+		
+		if (vars.get(eachWord.get(0)) == vars.put(eachWord.get(1), Double.valueOf(eachWord.get(3)))) {
+			if (stmnt.equals("PRINT")) {
+				printVar();
+				System.out.println("Doing PRINT");
+				lineNum++;
+			} else if (stmnt.equals("GOTO")) {
+				GOTOn();																	//Double check that these methods are accessible
+				System.out.println("Doing GOTO");
+				lineNum++;
+			} else {
+				varExpression();
+				System.out.println("Doing Var");											//Does this varExpression need to even exist here? Ask TA
+				lineNum++;
+			} 
+		}
 	}
 	
 }
+
+//TODO
+//Figure out why Line 76 doesn't increase lineNum
+//Add arithmetic to varExpression
+//Do conditional
+	//Check off conditional questions
+//Check if printVar works
+//Create error messages
