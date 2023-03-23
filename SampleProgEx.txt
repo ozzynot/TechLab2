@@ -1,0 +1,13 @@
+a = 3 + 2 / 5
+b = 4 / 2
+c = 9
+PRINT a
+GOTO 7
+PRINT b
+IF a IS 1 THEN PRINT c
+IF b IS 2 THEN GOTO 10
+PRINT a
+PRINT b
+IF c IS 9 THEN b = 8
+PRINT b
+END

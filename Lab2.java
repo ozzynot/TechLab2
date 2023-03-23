@@ -68,104 +68,123 @@ public class Lab2 extends JFrame implements ActionListener {
 	         e.printStackTrace();
 	         errors.setText("Incorrect Formatting");
 	    }
-		System.out.println(line);
         
 	//Execute the program until END        
-        while(end) {
-            eachLine = line.get(lineNum);
-            doMethod(eachLine);																//Ask Eric which placement of doMethod is better
-            lineNum++;
-            //line.get(lineNum++);
-            if(eachLine.equals("END")) {
-            	end = false;
-            	System.out.println("Program ended");
-            	continue;
-            }
-            doMethod(eachLine);																//Ask Eric which placement of doMethod is better
-        }
-	}
+        	eachLine = line.get(lineNum);
+        	System.out.println(line);
+    //Iterates through the lines to find variable
+    		for (int i = 0; i < line.size(); i++) {
+    			
+    //What to do if Var
+    			if(line.get(i).contains("=")) {
+    				int equalSign = line.get(i).indexOf('=');
+    				String vName = line.get(i).substring(0, equalSign-1);
+    				String vExpression = line.get(i).substring(equalSign+2);
+    				
+    				System.out.println(varExpression(vExpression));
+    				vars.put(vName, varExpression(vExpression));
+    				
+    //What to do if PRINT
+    				} else if(line.get(i).contains("PRINT") && !line.get(i).contains("IF")) {
+    					//printVar();
+    					StringTokenizer tokenizer = new StringTokenizer(line.get(i));
+    					tokenizer.nextToken();
+    					String token = tokenizer.nextToken();
+
+    					System.out.println("printed value " + vars.get(token));
+    					result.append("" + vars.get(token) + '\n');
+    					System.out.println("Doing PRINT");
+    					
+    //What to do if GOTO
+    				} else if(line.get(i).contains("GOTO") && !line.get(i).contains("IF")) {
+    					StringTokenizer tokenizer = new StringTokenizer(line.get(i));
+    					tokenizer.nextToken();
+    					String token = tokenizer.nextToken();    					
+    					i = Integer.parseInt(token)-1;
+    					System.out.println("Doing GOTO");
+    					
+    //What to do if IF
+    				} else if(line.get(i).contains("IF") && line.get(i).contains("IS") && line.get(i).contains("THEN")) {
+    					int then = line.get(i).indexOf("THEN")+4;
+    					StringTokenizer tokenizer1 = new StringTokenizer(line.get(i));
+    			//Gets the variable and pairs it to variableToken
+    					tokenizer1.nextToken();
+    					String variableToken = tokenizer1.nextToken();
+    					System.out.println(variableToken);
+    			//Gets the value and pairs it to valueToken
+    					tokenizer1.nextToken();
+    					String valueToken = tokenizer1.nextToken();
+    					System.out.println(valueToken);
+    					
+    					String afterThen = line.get(i).substring(then);
+    					
+    					if(vars.get(variableToken) == Double.parseDouble(valueToken)) {
+    						if(afterThen.contains("GOTO")) {
+    							StringTokenizer tokenizer = new StringTokenizer(afterThen);
+    							tokenizer.nextToken();
+    							String token = tokenizer.nextToken();
+    							System.out.println(token);
+    							
+    							i = Integer.parseInt(token)-1;
+    							
+    						}
+    						else if(afterThen.contains("PRINT") /*&& line.get(line.size()-1).equals("END")) */){
+    							StringTokenizer tokenizer = new StringTokenizer(afterThen);
+    							tokenizer.nextToken();
+    							String token = tokenizer.nextToken();
+    							System.out.println("printed value " + vars.get(token));
+    							result.append("" + vars.get(token) + '\n');
+    						}
+    						else if(afterThen.contains("=")) {
+    							int equalSign = afterThen.indexOf('=');
+    							String vName = afterThen.substring(0, equalSign-1);
+    							String vExpression = afterThen.substring(equalSign+2);
+    						
+    							System.out.println(varExpression(vExpression));
+    			//Adds the variable name and expression to hashmap
+    							vars.put(vName, varExpression(vExpression));
+    						}
+    					}
+    				}
+    			} 
+    		}        
 	
-	//Divide up each line from eachLine
-			ArrayList<String> eachWord = new ArrayList<String>();
-	
-	void doMethod(String statement) {
-	//Separates a line statement into tokens
-		StringTokenizer st = new StringTokenizer(statement);
-		
-	//Move on to next line
-		while (st.hasMoreTokens()) {
-			String nextToken = st.nextToken();
-			eachWord.add(nextToken);
+	//Takes in String and solves for a double
+	double varExpression(String str) {
+		StringTokenizer tokenizer = new StringTokenizer(str);
+	//Answer starts as the first number of the expression
+		double answer = Double.parseDouble(tokenizer.nextToken());
+	//Loop and do the math to find the solution to the expression, setting it to variable answer
+		while (tokenizer.hasMoreTokens()) {
+		    if (tokenizer.hasMoreTokens()) {
+		        String token = tokenizer.nextToken();
+		        if (tokenizer.hasMoreTokens()) {
+		            String nextToken = tokenizer.nextToken();
+		            
+		            switch(token){
+		            case "*":
+		            	answer = answer * Double.parseDouble(nextToken);
+		            	break;
+		            case "/":
+		                answer = answer / Double.parseDouble(nextToken);
+		                break;
+		            case "+":
+		            	answer = answer + Double.parseDouble(nextToken);
+		            	break;
+		            case "-":
+		            	answer = answer - Double.parseDouble(nextToken);
+		               break;
+		            }
+		        }
+		    }
 		}
-		
-		String firstWord = eachWord.get(0);
-		
-	//Sending the method to call a specific method depending on the first word in the simple code
- 		if (firstWord.equals("PRINT")) {
-			printVar();
-			System.out.println("Doing PRINT");
-			lineNum++;
-		} else if (firstWord.equals("GOTO")) {
-			GOTOn();
-			System.out.println("Doing GOTO");
-			lineNum++;
-		} else if (firstWord.equals("IF")) {
-			conditional();
-			System.out.println("Doing IF");
-			lineNum++;
-		} else {
-			varExpression();
-			System.out.println("Doing Var");
-			lineNum++;
-		} 
+		return answer;
 	}
+} 
 	
-	void varExpression() {
-		vars.put(eachWord.get(0), Double.valueOf(eachWord.get(2)));
-		vars.get(eachWord.get(0));
-	}
-	
-	void printVar() {
-	//Log the variable and value to the HashMap, make it a double, and setText in result box
-		vars.put(eachWord.get(0), Double.valueOf(eachWord.get(2)));
-		double varVal = vars.get(eachWord.get(2));
-		result.setText("" + varVal);
-			}
-	
-	int GOTOn() {
-		//Gets value after "GOTO" and sets it equal to lineNum
-		int GotoLin = Integer.parseInt(eachWord.get(1));
-		lineNum = GotoLin;
-		return lineNum;																		//Do I even need to return this?
-	}
-	
-	void conditional() {
-		
-		String stmnt = eachWord.get(5);
-		
-		if (vars.get(eachWord.get(0)) == vars.put(eachWord.get(1), Double.valueOf(eachWord.get(3)))) {
-			if (stmnt.equals("PRINT")) {
-				printVar();
-				System.out.println("Doing PRINT");
-				lineNum++;
-			} else if (stmnt.equals("GOTO")) {
-				GOTOn();																	//Double check that these methods are accessible
-				System.out.println("Doing GOTO");
-				lineNum++;
-			} else {
-				varExpression();
-				System.out.println("Doing Var");											//Does this varExpression need to even exist here? Ask TA
-				lineNum++;
-			} 
-		}
-	}
-	
-}
+
 
 //TODO
-//Figure out why Line 76 doesn't increase lineNum
-//Add arithmetic to varExpression
 //Do conditional
-	//Check off conditional questions
-//Check if printVar works
+//Check off conditional questions
 //Create error messages
