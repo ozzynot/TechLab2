@@ -63,8 +63,7 @@ public class Lab2 extends JFrame implements ActionListener {
 	         while ((text = reader.readLine()) != null) {
 	            line.add(text);
 	         }
-		} 
-		catch(IOException e) {
+		} catch(IOException e) {
 	         e.printStackTrace();
 	         errors.setText("Incorrect Formatting");
 	    }
@@ -76,6 +75,7 @@ public class Lab2 extends JFrame implements ActionListener {
     		for (int i = 0; i < line.size(); i++) {
     			
     //What to do if Var
+    			try {
     			if(line.get(i).contains("=")) {
     				int equalSign = line.get(i).indexOf('=');
     				String vName = line.get(i).substring(0, equalSign-1);
@@ -83,9 +83,13 @@ public class Lab2 extends JFrame implements ActionListener {
     				
     				System.out.println(varExpression(vExpression));
     				vars.put(vName, varExpression(vExpression));
-    				
+    				}
+    			}catch(Exception e) {
+    				errors.setText("Invalid variable format at line" + i);
+    			}
     //What to do if PRINT
-    				} else if(line.get(i).contains("PRINT") && !line.get(i).contains("IF")) {
+    			try {
+    			if(line.get(i).contains("PRINT") && !line.get(i).contains("IF")) {
     					//printVar();
     					StringTokenizer tokenizer = new StringTokenizer(line.get(i));
     					tokenizer.nextToken();
@@ -94,17 +98,27 @@ public class Lab2 extends JFrame implements ActionListener {
     					System.out.println("printed value " + vars.get(token));
     					result.append("" + vars.get(token) + '\n');
     					System.out.println("Doing PRINT");
+    					}
+    			} catch(Exception e) {
+    				errors.setText("Invalid PRINT format at line" + i);
+    			}
     					
     //What to do if GOTO
-    				} else if(line.get(i).contains("GOTO") && !line.get(i).contains("IF")) {
+    			try {
+    			if(line.get(i).contains("GOTO") && !line.get(i).contains("IF")) {
     					StringTokenizer tokenizer = new StringTokenizer(line.get(i));
     					tokenizer.nextToken();
     					String token = tokenizer.nextToken();    					
     					i = Integer.parseInt(token)-1;
     					System.out.println("Doing GOTO");
+    					}
+    			} catch(Exception e) {
+    				errors.setText("Invalid GOTO format at line" + i);
+    			}
     					
     //What to do if IF
-    				} else if(line.get(i).contains("IF") && line.get(i).contains("IS") && line.get(i).contains("THEN")) {
+    			try {
+    					if(line.get(i).contains("IF") && line.get(i).contains("IS") && line.get(i).contains("THEN")) {
     					int then = line.get(i).indexOf("THEN")+4;
     					StringTokenizer tokenizer1 = new StringTokenizer(line.get(i));
     			//Gets the variable and pairs it to variableToken
@@ -123,19 +137,18 @@ public class Lab2 extends JFrame implements ActionListener {
     							StringTokenizer tokenizer = new StringTokenizer(afterThen);
     							tokenizer.nextToken();
     							String token = tokenizer.nextToken();
+    							i = Integer.parseInt(token)-1;
     							System.out.println(token);
     							
-    							i = Integer.parseInt(token)-1;
-    							
     						}
-    						else if(afterThen.contains("PRINT") /*&& line.get(line.size()-1).equals("END")) */){
+    						if(afterThen.contains("PRINT") && line.get(line.size()-1).equals("END")) {
     							StringTokenizer tokenizer = new StringTokenizer(afterThen);
     							tokenizer.nextToken();
     							String token = tokenizer.nextToken();
     							System.out.println("printed value " + vars.get(token));
-    							result.append("" + vars.get(token) + '\n');
+    							result.append("" + vars.get(token) + '\n');									//GOTO prints are being weird
     						}
-    						else if(afterThen.contains("=")) {
+    						if(afterThen.contains("=")) {
     							int equalSign = afterThen.indexOf('=');
     							String vName = afterThen.substring(0, equalSign-1);
     							String vExpression = afterThen.substring(equalSign+2);
@@ -144,10 +157,21 @@ public class Lab2 extends JFrame implements ActionListener {
     			//Adds the variable name and expression to hashmap
     							vars.put(vName, varExpression(vExpression));
     						}
+    						}
     					}
+    				} catch(Exception e) {
+    					errors.setText("Invalid conditional statement format at line" + i);
     				}
-    			} 
-    		}        
+    					if(line.get(i).contains("END")) {
+    						System.out.println("Doing END");
+    						break;
+    					}
+    					if(open.getModel().isPressed()) {
+    						vars.clear();
+    					}
+    			}
+    		}  
+
 	
 	//Takes in String and solves for a double
 	double varExpression(String str) {
@@ -180,11 +204,12 @@ public class Lab2 extends JFrame implements ActionListener {
 		}
 		return answer;
 	}
+	
 } 
 	
 
 
 //TODO
-//Do conditional
+//Do END
 //Check off conditional questions
 //Create error messages
