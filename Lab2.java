@@ -67,12 +67,14 @@ public class Lab2 extends JFrame implements ActionListener {
 	         e.printStackTrace();
 	         errors.setText("Incorrect Formatting");
 	    }
-        
+	
 	//Execute the program until END        
         	eachLine = line.get(lineNum);
         	System.out.println(line);
     //Iterates through the lines to find variable
-    		for (int i = 0; i < line.size(); i++) {
+        	int i = 0;
+        	outerloop: try {
+    		for (i = 0; i < line.size(); i++) {
     			
     //What to do if Var
     			try {
@@ -85,7 +87,7 @@ public class Lab2 extends JFrame implements ActionListener {
     				vars.put(vName, varExpression(vExpression));
     				}
     			}catch(Exception e) {
-    				errors.setText("Invalid variable format at line" + i);
+    				errors.setText("Invalid variable format at line " + i);
     			}
     //What to do if PRINT
     			try {
@@ -96,11 +98,10 @@ public class Lab2 extends JFrame implements ActionListener {
     					String token = tokenizer.nextToken();
 
     					System.out.println("printed value " + vars.get(token));
-    					result.append("" + vars.get(token) + '\n');
     					System.out.println("Doing PRINT");
     					}
     			} catch(Exception e) {
-    				errors.setText("Invalid PRINT format at line" + i);
+    				errors.setText("Invalid PRINT format at line " + i);
     			}
     					
     //What to do if GOTO
@@ -113,7 +114,7 @@ public class Lab2 extends JFrame implements ActionListener {
     					System.out.println("Doing GOTO");
     					}
     			} catch(Exception e) {
-    				errors.setText("Invalid GOTO format at line" + i);
+    				errors.setText("Invalid GOTO format at line " + i);
     			}
     					
     //What to do if IF
@@ -141,35 +142,53 @@ public class Lab2 extends JFrame implements ActionListener {
     							System.out.println(token);
     							
     						}
-    						if(afterThen.contains("PRINT") && line.get(line.size()-1).equals("END")) {
+    						if (afterThen.contains("PRINT") && line.get(line.size() - 1).equals("END")) {
     							StringTokenizer tokenizer = new StringTokenizer(afterThen);
     							tokenizer.nextToken();
     							String token = tokenizer.nextToken();
-    							System.out.println("printed value " + vars.get(token));
-    							result.append("" + vars.get(token) + '\n');									//GOTO prints are being weird
+    							//if its null then error
+    							if (vars.get(token) == null) {
+    								errors.setText("In line " + (i + 1) + " \"" + token + "\" is undefined");
+    								break outerloop;
+    							} else {
+    								result.append("" + vars.get(token) + '\n');
+    							}
+    						} 				//GOTO prints are being weird
     						}
     						if(afterThen.contains("=")) {
     							int equalSign = afterThen.indexOf('=');
-    							String vName = afterThen.substring(0, equalSign-1);
-    							String vExpression = afterThen.substring(equalSign+2);
-    						
-    							System.out.println(varExpression(vExpression));
+    							String vName = afterThen.substring(1, equalSign - 1);
+    							String vExpression = afterThen.substring(equalSign + 2);
     			//Adds the variable name and expression to hashmap
     							vars.put(vName, varExpression(vExpression));
     						}
     						}
-    					}
     				} catch(Exception e) {
-    					errors.setText("Invalid conditional statement format at line" + i);
+    					errors.setText("Invalid conditional statement format at line " + i);
     				}
-    					if(line.get(i).contains("END")) {
-    						System.out.println("Doing END");
-    						break;
-    					}
-    					if(open.getModel().isPressed()) {
-    						vars.clear();
-    					}
+    //What to do if END
+    			if (line.get(line.size() - 1).equals("END")) {
+
+					if (line.get(i).contains("PRINT") && !line.get(i).contains("IF")) {
+						StringTokenizer tokenizer = new StringTokenizer(line.get(i));
+						tokenizer.nextToken();
+						String token = tokenizer.nextToken();
+
+						//if its null then error
+						if (vars.get(token) == null) {
+							errors.setText("In line " + (i + 1) + " \"" + token + "\" is undefined");
+							break outerloop;
+						} else {
+							result.append("" + vars.get(token) + '\n');
+						}
+					}
+				} else {
+					errors.setText("END is not last statement");
+				}
     			}
+        	} catch (Exception e) {
+    			errors.setText("In line " + (i + 1) + " illegal statement");
+        	}
     		}  
 
 	
@@ -180,36 +199,30 @@ public class Lab2 extends JFrame implements ActionListener {
 		double answer = Double.parseDouble(tokenizer.nextToken());
 	//Loop and do the math to find the solution to the expression, setting it to variable answer
 		while (tokenizer.hasMoreTokens()) {
-		    if (tokenizer.hasMoreTokens()) {
-		        String token = tokenizer.nextToken();
-		        if (tokenizer.hasMoreTokens()) {
-		            String nextToken = tokenizer.nextToken();
-		            
-		            switch(token){
-		            case "*":
-		            	answer = answer * Double.parseDouble(nextToken);
-		            	break;
-		            case "/":
-		                answer = answer / Double.parseDouble(nextToken);
-		                break;
-		            case "+":
-		            	answer = answer + Double.parseDouble(nextToken);
-		            	break;
-		            case "-":
-		            	answer = answer - Double.parseDouble(nextToken);
-		               break;
-		            }
-		        }
-		    }
+			if (tokenizer.hasMoreTokens()) {
+				String token = tokenizer.nextToken();
+				if (tokenizer.hasMoreTokens()) {
+					String nextToken = tokenizer.nextToken();
+					//does the math depending on the arithmetic operators
+					switch (token) {
+					case "*":
+						answer = answer * Double.parseDouble(nextToken);
+						break;
+					case "/":
+						answer = answer / Double.parseDouble(nextToken);
+						break;
+					case "+":
+						answer = answer + Double.parseDouble(nextToken);
+						break;
+					case "-":
+						answer = answer - Double.parseDouble(nextToken);
+						break;
+					}
+
+				}
+			}
 		}
 		return answer;
 	}
 	
 } 
-	
-
-
-//TODO
-//Do END
-//Check off conditional questions
-//Create error messages
